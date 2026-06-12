@@ -17,6 +17,7 @@ import {
   badRequestResponse,
   rateLimitResponse,
 } from "@/lib/api-responses";
+import { prepareGeneration, rewriteStream, postProcess, formatPipelineSummary } from "@/lib/composite/pipeline";
 
 // POST handler for chat messages
 // Receives: messages array, serialized file state, optional projectId, provider, model
@@ -112,19 +113,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // Build provider-specific options for system message
-  const providerOptions: Record<string, any> = {};
-  if (providerId === "anthropic") {
-    providerOptions.anthropic = { cacheControl: { type: "ephemeral" } };
-  }
-
-  // Prepend system prompt with provider-specific options
-  messages.unshift({
-    role: "system",
-    content: generationPrompt,
-    ...(Object.keys(providerOptions).length > 0 && { providerOptions }),
-  });
-
   // Reconstruct VirtualFileSystem from serialized state sent by client
   const fileSystem = new VirtualFileSystem();
   fileSystem.deserializeFromNodes(files);
@@ -137,45 +125,25 @@ export async function POST(req: Request) {
   // Tool messages from persisted conversations need special handling
   const normalizedMessages = messages
     .map((m: any) => {
-      // Filter out tool messages - they cause validation issues when loaded from DB
-      // The AI will regenerate tool calls as needed for the conversation
-      if (m.role === "tool") {
-        return null;
-      }
-
-      // For assistant messages, extract only text content
-      // Skip any tool_calls or other non-text content that may be persisted
+      if (m.role === "tool") return null;
       if (m.role === "assistant") {
         let textContent = "";
-
-        // Handle parts array (UI SDK format)
         if (Array.isArray(m.parts)) {
           textContent = m.parts
             .filter((p: any) => p.type === "text" && p.text)
             .map((p: any) => p.text)
             .join("");
-        }
-        // Handle content array
-        else if (Array.isArray(m.content)) {
+        } else if (Array.isArray(m.content)) {
           textContent = m.content
             .filter((c: any) => (c.type === "text" && c.text) || typeof c === "string")
             .map((c: any) => (typeof c === "string" ? c : c.text))
             .join("");
-        }
-        // Handle string content
-        else if (typeof m.content === "string") {
+        } else if (typeof m.content === "string") {
           textContent = m.content;
         }
-
-        // Skip assistant messages with no text (e.g., tool-only responses)
-        if (!textContent || textContent.trim() === "") {
-          return null;
-        }
-
+        if (!textContent || textContent.trim() === "") return null;
         return { role: "assistant", content: textContent };
       }
-
-      // For user messages
       if (m.role === "user") {
         let textContent = "";
         if (typeof m.content === "string") {
@@ -193,64 +161,73 @@ export async function POST(req: Request) {
         }
         return { role: "user", content: textContent || "" };
       }
-
-      // System messages pass through
-      if (m.role === "system") {
-        return { role: "system", content: m.content || "" };
-      }
-
-      return null; // Filter unknown roles
+      if (m.role === "system") return { role: "system", content: m.content || "" };
+      return null;
     })
-    .filter((m: { role: string; content: string } | null): m is { role: string; content: string } => m !== null); // Remove null entries with type guard
+    .filter((m: { role: string; content: string } | null): m is { role: string; content: string } => m !== null);
+
+  const startTime = Date.now();
+  
+  const pipelineMessages = normalizedMessages.filter(m => m.role !== "system");
+  const { messages: enhancedMessages, intent } = prepareGeneration(
+    pipelineMessages,
+    { providerId, enableDynamicPrompt: true, enableStreamRewrite: true, enableAutoFix: true }
+  );
+
+  const providerOptions: Record<string, any> = {};
+  if (providerId === "anthropic") {
+    providerOptions.anthropic = { cacheControl: { type: "ephemeral" } };
+  }
+
+  const finalSystemMessage = enhancedMessages.find(m => m.role === "system")?.content || "";
+  const fullSystemPrompt = `${generationPrompt}\n\n${finalSystemMessage}`;
+  
+  enhancedMessages.unshift({
+    role: "system",
+    content: fullSystemPrompt,
+    ...(Object.keys(providerOptions).length > 0 && { providerOptions }),
+  });
 
   // Stream text with tool use (agentic loop)
-  // AI can call tools to create/edit files; we execute them in the fileSystem
   const result = streamText({
     model,
-    messages: normalizedMessages as any,
+    messages: enhancedMessages as any,
     maxOutputTokens: 10_000,
-    // AI SDK v6: Use stopWhen instead of maxSteps for controlling the agentic loop
     stopWhen: stepCountIs(isUsingMock ? 2 : 40),
     onError: (err: any) => {
-      // Security: Log full error internally but don't expose to client
       console.error(`[AI Error] Provider: ${providerId}`, err);
     },
     tools: {
-      // Tool for file creation and editing (view, create, replace, insert)
       str_replace_editor: buildStrReplaceTool(fileSystem),
-      // Tool for file operations (rename, delete)
       file_manager: buildFileManagerTool(fileSystem),
     },
-    // Called when streaming completes
     onFinish: async ({ response }) => {
-      // Only save if this is a project (authenticated user)
+      const { autofixReport } = postProcess(fileSystem);
+      const duration = Date.now() - startTime;
+      
+      if (autofixReport && autofixReport.totalFixes > 0) {
+        console.log(`[Pipeline] AutoFix applied ${autofixReport.totalFixes} fixes across ${autofixReport.filesWithIssues} files (${duration}ms)`);
+      }
+
       if (projectId) {
         try {
-          // Verify user is authenticated
           const session = await getSession();
           if (!session) {
             console.error("[Save Error] User not authenticated, cannot save project");
             return;
           }
 
-          // Get response messages from AI (includes tool calls and final response)
           const responseMessages = response.messages || [];
-          // Merge original user/system messages with response messages
-          // Exclude system prompt from saved messages
           const userMessages = messages.filter((m) => m.role !== "system");
           const allMessages = [...userMessages, ...responseMessages];
 
-          // Update project in database with new messages and file state
-          // Uses projectId + userId to ensure user can only update their own projects
           await prisma.project.update({
             where: {
               id: projectId,
               userId: session.userId,
             },
             data: {
-              // Store message history as JSON
               messages: JSON.stringify(allMessages),
-              // Store serialized file tree as JSON
               data: JSON.stringify(fileSystem.serialize()),
             },
           });
@@ -261,8 +238,6 @@ export async function POST(req: Request) {
     },
   });
 
-  // Return SSE response (Server-Sent Events for streaming)
-  // AI SDK v6: Use toUIMessageStreamResponse for useChat compatibility
   return result.toUIMessageStreamResponse();
 }
 

@@ -58,6 +58,30 @@ export const PROVIDERS = {
     envKey: "XAI_API_KEY",
     supportsTools: true,
   },
+  completions: {
+    name: "Free AI API",
+    models: [
+      { id: "smart-chat", name: "Smart Chat (auto-route)", contextWindow: 128000 },
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", contextWindow: 1000000 },
+      { id: "kimi-k2.5", name: "Kimi K2.5", contextWindow: 128000 },
+      { id: "gpt-5.5", name: "GPT-5.5", contextWindow: 128000 },
+    ],
+    default: "smart-chat",
+    envKey: "COMPLETIONS_API_KEY",
+    supportsTools: true,
+  },
+  groq: {
+    name: "Groq (Free)",
+    models: [
+      { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B", contextWindow: 32768 },
+      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant", contextWindow: 131072 },
+      { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B", contextWindow: 32768 },
+      { id: "llama-4-scout-17b-16e-instruct", name: "Llama 4 Scout 17B", contextWindow: 131072 },
+    ],
+    default: "llama-3.3-70b-versatile",
+    envKey: "GROQ_API_KEY",
+    supportsTools: true,
+  },
 } as const;
 
 export type ProviderId = keyof typeof PROVIDERS;

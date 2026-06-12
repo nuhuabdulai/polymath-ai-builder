@@ -72,8 +72,23 @@ export function getLanguageModel(
       return provider(model);
     }
 
+    case "completions": {
+      const client = createOpenAI({
+        baseURL: "https://aiapiv2.pekpik.com/v1",
+        apiKey: key,
+      });
+      return client.chat(model);
+    }
+
+    case "groq": {
+      const client = createOpenAI({
+        baseURL: "https://api.groq.com/openai/v1",
+        apiKey: key,
+      });
+      return client.chat(model);
+    }
+
     default:
-      // Fallback to mock provider for unknown providers
       return getMockLanguageModel();
   }
 }
