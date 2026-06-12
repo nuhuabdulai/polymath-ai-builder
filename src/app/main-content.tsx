@@ -204,10 +204,10 @@ export function MainContent({ user, project, projects = [] }: MainContentProps) 
                           className="text-sm font-semibold text-foreground truncate max-w-[180px]"
                           title={project?.name || "React AI UI Generator"}
                         >
-                          {project?.name || "React AI UI Generator"}
+                          {project?.name || "Sisyphus"}
                         </h1>
                         <p className="text-xs text-muted-foreground">
-                          AI Component Generator
+                          AI App Builder
                         </p>
                       </div>
                     </div>

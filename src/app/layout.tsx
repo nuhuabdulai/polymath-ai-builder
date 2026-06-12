@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Polymath AI Builder — Generate React Apps from Prompts",
-  description: "AI-powered full-stack app generator. Multi-provider, live preview, one-click deploy. Built with Next.js, Tailwind CSS, and Vercel AI SDK.",
+  title: "Sisyphus — AI App Builder",
+  description: "AI-powered full-stack app generator. Multi-provider, composite pipeline, live preview. Built by Sisyphus.",
   openGraph: {
-    title: "Polymath AI Builder",
-    description: "Generate full-stack React apps from natural language prompts",
+    title: "Sisyphus — AI App Builder",
+    description: "Generate full-stack apps from natural language prompts",
   },
 };
 

@@ -17,7 +17,7 @@ function createOpenRouterClient(apiKey: string) {
     apiKey,
     headers: {
       "HTTP-Referer": "https://uigen.app",
-      "X-Title": "React AI UI Generator",
+      "X-Title": "Sisyphus AI App Builder",
     },
   });
 }
