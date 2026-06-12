@@ -58,112 +58,29 @@ export function buildDynamicPrompt(
 ): string {
   const sections: string[] = [];
 
-  // Base identity
-  sections.push(`You are an expert software engineer. Generate ${intent.type === "full-app" ? "complete, production-ready applications" : "production-ready React components"}.`);
-
-  // Framework-specific guidance
-  if (intent.frameworks.includes("next.js") || intent.type === "full-app") {
-    sections.push(`
-## Framework: Next.js + React
-- Use Next.js App Router (app/) conventions
-- Pages go in app/ directory as page.tsx files
-- API routes go in app/api/ as route.ts files
-- Layouts go in app/layout.tsx
-- Components go in components/ directory
-- Use 'use client' directive for client-side components
-- Use 'use server' for server actions
-- Import from 'next/navigation' for routing hooks`);
-  }
+  sections.push(`You are an expert engineer generating ${intent.type === "full-app" ? "complete applications" : "React components"}.`);
 
   if (intent.frameworks.includes("tailwind")) {
-    sections.push(`
-## Styling
-- Use Tailwind CSS v4 for all styling
-- Use className with Tailwind utility classes
-- Do NOT use inline styles or CSS-in-JS unless required
-- Use CSS variables for theme colors: var(--color-primary), etc.`);
+    sections.push(`Style with Tailwind CSS. Use className utilities. No inline styles.`);
   }
 
-  // Type-specific instructions
   switch (intent.type) {
     case "full-app":
-      sections.push(`
-## Full-Stack App Generation
-You are generating a COMPLETE application, not just a component.
-- Create a full project structure with pages, components, API routes
-- Root file is /App.jsx as the entry point
-- For Next.js projects, scaffold proper app/ directory structure
-- Include package.json with all required dependencies
-- If database is needed, include schema + API routes`);
+      sections.push(`Generate a complete app: pages, API routes, components. /App.jsx entry point. Scaffold full Next.js structure.`);
       break;
-
     case "api-route":
-      sections.push(`
-## API Route Generation
-- Create route.ts following Next.js App Router conventions
-- Handle GET, POST, PUT, PATCH, DELETE as needed
-- Include proper error handling with HTTP status codes
-- Add request validation
-- Document the API contract in comments`);
+      sections.push(`Create route.ts with proper HTTP handlers, validation, error handling.`);
       break;
-
     case "dashboard":
-      sections.push(`
-## Dashboard Generation
-- Create a multi-section dashboard layout
-- Include: sidebar/nav, main content area, header
-- Use cards, charts, and data tables
-- Add responsive breakpoints for mobile`);
+      sections.push(`Multi-section dashboard: sidebar/nav, main content, header, cards, responsive.`);
       break;
-
     case "landing-page":
-      sections.push(`
-## Landing Page Generation
-- Create a complete landing page with hero, features, pricing/CTA sections
-- Mobile-first responsive design
-- Include smooth scroll and visual hierarchy`);
+      sections.push(`Complete landing: hero, features, CTA. Mobile-first.`);
       break;
   }
 
-  // Tool guidance (provider-agnostic version)
-  sections.push(`
-## Tools Available
-You have access to tools for creating, editing, and managing files:
-
-1. **str_replace_editor** - View files, create new files, edit existing files by replacing text, insert text at specific lines
-2. **file_manager** - Rename and delete files or directories
-
-### Workflow
-1. First, plan your file structure
-2. Create the entry point file first (/App.jsx)
-3. Create additional files as needed
-4. Use str_replace_editor for all file modifications`);
-
-  // Provider-specific notes
-  if (providerId === "anthropic") {
-    sections.push(`
-## Provider Note
-This session uses Anthropic Claude. Take advantage of long context for large generations.`);
-  } else if (providerId === "google") {
-    sections.push(`
-## Provider Note
-This session uses Google Gemini. Responses may be concise.`);
-  } else if (providerId === "openai") {
-    sections.push(`
-## Provider Note
-This session uses OpenAI GPT. Follow function calling conventions precisely.`);
-  }
-
-  // Output rules
-  sections.push(`
-## Output Rules
-- Keep responses brief. Do not summarize work unless asked
-- Every project must have a root /App.jsx file as default export
-- Use Tailwind CSS for all styling
-- Do NOT create HTML files
-- Use '@/' import alias for local files (e.g., '@/components/Button')
-- All imports for non-library files should use '@/'
-- If creating multiple files, plan the structure first, then create each file`);
+  sections.push(`Tools: str_replace_editor (create/edit files), file_manager (rename/delete). Plan first, create /App.jsx first, then additional files.`);
+  sections.push(`Output: brief responses. /App.jsx as default export. @/ import alias. No HTML files.`);
 
   return sections.join("\n\n");
 }

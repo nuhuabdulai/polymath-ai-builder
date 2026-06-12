@@ -179,12 +179,12 @@ export async function POST(req: Request) {
     providerOptions.anthropic = { cacheControl: { type: "ephemeral" } };
   }
 
-  const finalSystemMessage = enhancedMessages.find(m => m.role === "system")?.content || "";
-  const fullSystemPrompt = `${generationPrompt}\n\n${finalSystemMessage}`;
+  const dynamicContent = enhancedMessages.find(m => m.role === "system")?.content || "";
+  const systemPrompt = `${generationPrompt}\n\n${dynamicContent}`;
   
   enhancedMessages.unshift({
     role: "system",
-    content: fullSystemPrompt,
+    content: systemPrompt,
     ...(Object.keys(providerOptions).length > 0 && { providerOptions }),
   });
 

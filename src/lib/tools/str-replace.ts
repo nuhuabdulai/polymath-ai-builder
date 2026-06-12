@@ -17,8 +17,7 @@ type StrReplaceInput = z.infer<typeof strReplaceInputSchema>;
 
 export const buildStrReplaceTool = (fileSystem: VirtualFileSystem) => {
   return tool({
-    description:
-      "A text editor tool for viewing, creating, and editing files. Commands: view (view file), create (create new file), str_replace (replace text), insert (insert at line), undo_edit (not supported).",
+    description: "Create/edit files. Commands: view, create, str_replace, insert.",
     inputSchema: strReplaceInputSchema,
     execute: async ({
       command,

@@ -73,8 +73,8 @@ export const PROVIDERS = {
   groq: {
     name: "Groq (Free)",
     models: [
+      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B (fastest)", contextWindow: 131072 },
       { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B", contextWindow: 32768 },
-      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant", contextWindow: 131072 },
       { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B", contextWindow: 32768 },
       { id: "llama-4-scout-17b-16e-instruct", name: "Llama 4 Scout 17B", contextWindow: 131072 },
     ],
