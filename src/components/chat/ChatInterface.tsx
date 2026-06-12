@@ -187,28 +187,56 @@ export function ChatInterface() {
       )}
 
       {messages.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center max-w-md animate-fade-in">
-            <div className="h-14 w-14 rounded-xl bg-primary mx-auto mb-5 flex items-center justify-center animate-breathing">
-              <Wand2 className="h-7 w-7 text-primary-foreground" />
+        <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
+          <div className="text-center max-w-lg animate-fade-in">
+            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 mx-auto mb-6 flex items-center justify-center shadow-lg shadow-primary/20">
+              <Wand2 className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground mb-2">
-              What would you like to create?
+            <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
+              What do you want to build?
             </h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              Describe a React component and I&apos;ll generate it for you with
-              clean, modern code and Tailwind CSS styling.
+            <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
+              Describe a component or app in plain English. I&apos;ll generate
+              production-ready React code with Tailwind CSS.
             </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {["Counter", "Form", "Card", "Button"].map((example, index) => (
+
+            {/* Template quick-starts */}
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              {[
+                { label: "Counter", desc: "Interactive counter", icon: "＋", color: "from-blue-500/20 to-blue-600/10", border: "hover:border-blue-500/50" },
+                { label: "Contact Form", desc: "Form with validation", icon: "✉", color: "from-green-500/20 to-green-600/10", border: "hover:border-green-500/50" },
+                { label: "Pricing Card", desc: "3-tier pricing table", icon: "💰", color: "from-purple-500/20 to-purple-600/10", border: "hover:border-purple-500/50" },
+                { label: "Dashboard", desc: "Analytics dashboard", icon: "📊", color: "from-amber-500/20 to-amber-600/10", border: "hover:border-amber-500/50" },
+                { label: "User Profile", desc: "Profile with avatar", icon: "👤", color: "from-rose-500/20 to-rose-600/10", border: "hover:border-rose-500/50" },
+                { label: "Chat UI", desc: "Message interface", icon: "💬", color: "from-cyan-500/20 to-cyan-600/10", border: "hover:border-cyan-500/50" },
+                { label: "Landing Page", desc: "Marketing hero + CTA", icon: "🚀", color: "from-orange-500/20 to-orange-600/10", border: "hover:border-orange-500/50" },
+                { label: "Data Table", desc: "Sortable table", icon: "📋", color: "from-teal-500/20 to-teal-600/10", border: "hover:border-teal-500/50" },
+              ].map((template, index) => (
                 <button
-                  key={example}
-                  onClick={() => setInput(`Create a ${example.toLowerCase()} component`)}
-                  className={`px-3 py-1.5 text-sm rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all border border-border hover:border-primary/50 active:scale-[0.98] animate-fade-in stagger-${index + 1}`}
+                  key={template.label}
+                  onClick={() => setInput(`Create a ${template.label.toLowerCase()} component. ${template.desc}. Use Tailwind CSS.`)}
+                  className={`group relative flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br ${template.color} border border-border/50 ${template.border} transition-all duration-200 hover:shadow-md hover:border-opacity-100 active:scale-[0.98] text-left animate-fade-in`}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  {example}
+                  <span className="text-xl flex-shrink-0 mt-0.5">{template.icon}</span>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {template.label}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                      {template.desc}
+                    </div>
+                  </div>
                 </button>
               ))}
+            </div>
+
+            <div className="flex items-center gap-4 justify-center text-xs text-muted-foreground">
+              <span>✨ Multi-provider AI</span>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span>🎨 Tailwind CSS</span>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span>⚡ Live preview</span>
             </div>
           </div>
         </div>

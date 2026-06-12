@@ -15,8 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "React AI UI Generator",
-  description: "Generate beautiful React components with AI",
+  title: "Polymath AI Builder — Generate React Apps from Prompts",
+  description: "AI-powered full-stack app generator. Multi-provider, live preview, one-click deploy. Built with Next.js, Tailwind CSS, and Vercel AI SDK.",
+  openGraph: {
+    title: "Polymath AI Builder",
+    description: "Generate full-stack React apps from natural language prompts",
+  },
 };
 
 export default function RootLayout({
