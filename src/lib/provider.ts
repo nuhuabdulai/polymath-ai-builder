@@ -96,6 +96,30 @@ export function getLanguageModel(
       return client.chat(model);
     }
 
+    case "cerebras": {
+      const client = createOpenAI({
+        baseURL: "https://api.cerebras.ai/v1",
+        apiKey: key,
+      });
+      return client.chat(model);
+    }
+
+    case "deepseek": {
+      const client = createOpenAI({
+        baseURL: "https://api.deepseek.com",
+        apiKey: key,
+      });
+      return client.chat(model);
+    }
+
+    case "github": {
+      const client = createOpenAI({
+        baseURL: "https://models.inference.ai.azure.com",
+        apiKey: key,
+      });
+      return client.chat(model);
+    }
+
     default:
       return getMockLanguageModel();
   }
