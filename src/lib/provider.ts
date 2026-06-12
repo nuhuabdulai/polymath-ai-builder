@@ -88,6 +88,14 @@ export function getLanguageModel(
       return client.chat(model);
     }
 
+    case "freetheai": {
+      const client = createOpenAI({
+        baseURL: "https://api.freetheai.xyz/v1",
+        apiKey: key,
+      });
+      return client.chat(model);
+    }
+
     default:
       return getMockLanguageModel();
   }

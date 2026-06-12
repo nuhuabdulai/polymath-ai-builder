@@ -70,6 +70,19 @@ export const PROVIDERS = {
     envKey: "COMPLETIONS_API_KEY",
     supportsTools: true,
   },
+  freetheai: {
+    name: "FreeTheAi",
+    models: [
+      { id: "opc/deepseek-v4-flash-free", name: "DeepSeek V4 Flash", contextWindow: 128000 },
+      { id: "opc/minimax-m3-free", name: "MiniMax M3", contextWindow: 128000 },
+      { id: "opc/qwen3.6-plus-free", name: "Qwen 3.6 Plus", contextWindow: 128000 },
+      { id: "kai/openrouter/free", name: "OpenRouter Free", contextWindow: 128000 },
+      { id: "kai/poolside/laguna-m.1:free", name: "Laguna M.1", contextWindow: 128000 },
+    ],
+    default: "opc/deepseek-v4-flash-free",
+    envKey: "FREETHEAI_API_KEY",
+    supportsTools: true,
+  },
   groq: {
     name: "Groq (Free)",
     models: [
