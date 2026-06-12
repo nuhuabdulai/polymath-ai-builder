@@ -26,13 +26,13 @@ export const PROVIDERS = {
     supportsTools: true,
   },
   google: {
-    name: "Google AI",
+    name: "Google Gemini",
     models: [
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash (vision)", contextWindow: 1000000 },
       { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", contextWindow: 1000000 },
       { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", contextWindow: 1000000 },
-      { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", contextWindow: 1000000 },
     ],
-    default: "gemini-2.0-flash",
+    default: "gemini-2.5-flash",
     envKey: "GOOGLE_AI_API_KEY",
     supportsTools: true,
   },
